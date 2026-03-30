@@ -1,0 +1,16 @@
+Rules:
+- Eating, thinking, sleeping -> can do only one thing at a time
+- Amount of fork = amount of philosopher
+- Philosopher must pick 2 forks (right and left) in order to eat
+- After philosopher has finished eating, they put the fork back to the table and start sleeping
+- Once philospher awake they start thinking again
+- The simulation stops when  philosopher dies of startvation
+
+Philosopher:
+- Needs to eat
+- Do not communicate with each other
+- Do not know if another philosoher is about to die
+
+About program:
+- Take these arguments: number_of_philosophers, time_to_die, time_to_eat, time_to_sleep, number_of_times_each_philospher_must_eat (optional argument)
+- The time unit is milisecond
