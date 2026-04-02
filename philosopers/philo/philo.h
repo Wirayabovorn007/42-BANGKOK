@@ -7,14 +7,18 @@
 #include <sys/time.h>
 #include <pthread.h>
 
+// 1. Forward declaration so t_philo knows about t_program
+typedef struct s_program t_program;
 
 typedef struct s_philo {
-	int				id;                 // Philosopher number (1 to N)
-	int				meals_eaten;        // Track how many times they ate
-	size_t			last_meal;          // Timestamp of the last meal
-	pthread_mutex_t	*l_fork;            // Pointer to left fork mutex
-	pthread_mutex_t	*r_fork;            // Pointer to right fork mutex
-	t_program		*prog;              // Pointer to the shared program data
+	int				id;
+	int				meals_eaten;
+	size_t			last_meal;
+	pthread_t		thread_id;          // Added to store the thread's ID
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
+	pthread_mutex_t	meal_lock;          // Added to prevent data races when reading/writing meals
+	t_program		*prog;
 }	t_philo;
 
 typedef struct s_program {
@@ -22,16 +26,17 @@ typedef struct s_program {
 	size_t			time_to_die;
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
-	int				num_times_to_eat;   // -1 if not specified
-	int				dead_flag;          // 1 if someone died, 0 otherwise
-	pthread_mutex_t	dead_lock;          // Protects dead_flag
-	pthread_mutex_t	write_lock;         // Protects printf outputs
-	pthread_mutex_t	*forks;             // Array of fork mutexes
-	t_philo			*philos;            // Array of philosophers
+	int				num_times_to_eat;
+	int				dead_flag;
+	pthread_mutex_t	dead_lock;
+	pthread_mutex_t	write_lock;
+	pthread_mutex_t	*forks;
+	t_philo			*philos;
 }	t_program;
 
 
 int	check_input(char *argv[], int argc);
 int	ft_atoi(const char *str);
+int ft_isdigit(int c);
 
 #endif
