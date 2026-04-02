@@ -1,14 +1,5 @@
 #include "philo.h"
 
-size_t	get_curr_time(void)
-{
-	struct	timeval	time;
-
-	if (gettimeofday(&time, NULL) == -1)
-		printf("Error getting time\n");
-	return ((time.tv_sec * 1000) + (time.tv_usec / 1000)); // Fixed tv_usec typo
-}
-
 void	monitor(t_program *prog)
 {
 	int	i;
@@ -32,7 +23,7 @@ void	monitor(t_program *prog)
 
 				// Print death message safely
 				pthread_mutex_lock(&prog->write_lock);
-				printf("%zu %d died\n", get_curr_time(), prog->philos[i].id);
+				printf("%zu %d died\n", get_curr_time() - prog->start_time, prog->philos[i].id);
 				// Do NOT unlock write_lock here so no one else can print after death
 
 				pthread_mutex_unlock(&prog->philos[i].meal_lock);
@@ -56,86 +47,6 @@ void	monitor(t_program *prog)
 	}
 }
 
-int	init_prog(t_program *prog, char *argv[], int argc)
-{
-	prog->num_of_philos = ft_atoi(argv[0]);
-	prog->time_to_die = ft_atoi(argv[1]);
-	prog->time_to_eat = ft_atoi(argv[2]);
-	prog->time_to_sleep = ft_atoi(argv[3]);
-	if (argc == 6)
-		prog->num_times_to_eat = ft_atoi(argv[4]);
-	else
-		prog->num_times_to_eat = -1;
-	prog->dead_flag = 0;
-	pthread_mutex_init(&prog->dead_lock, NULL);
-	pthread_mutex_init(&prog->write_lock, NULL);
-
-	return (0);
-}
-
-int	init_philos_and_forks(t_program *prog)
-{
-	int	i;
-
-	prog->philos = malloc(sizeof(t_philo) * prog->num_of_philos);
-	prog->forks = malloc(sizeof(pthread_mutex_t) * prog->num_of_philos);
-	if (!prog->philos || !prog->forks)
-		return (1);
-	i = 0;
-	while (i < prog->num_of_philos)
-	{
-		pthread_mutex_init(&prog->forks[i], NULL);
-		i++;
-	}
-	i = 0;
-	while (i < prog->num_of_philos)
-	{
-		prog->philos[i].id = i + 1;
-		prog->philos[i].meals_eaten = 0;
-		prog->philos[i].last_meal = get_curr_time(); // Initialize last_meal
-		prog->philos[i].prog = prog;
-		prog->philos[i].l_fork = &prog->forks[i];
-		prog->philos[i].r_fork = &prog->forks[(i + 1) % prog->num_of_philos];
-		pthread_mutex_init(&prog->philos[i].meal_lock, NULL); // Initialize meal_lock
-		i++;
-	}
-	return (0);
-}
-
-// 1. A better sleep function. Standard usleep is inaccurate and can cause accidental deaths.
-void	ft_usleep(size_t milliseconds)
-{
-	size_t	start;
-
-	start = get_curr_time();
-	while ((get_curr_time() - start) < milliseconds)
-		usleep(500);
-}
-
-// 2. A safe way for the philosopher to check if someone died before taking an action.
-int	check_dead(t_philo *philo)
-{
-	int	dead;
-
-	pthread_mutex_lock(&philo->prog->dead_lock);
-	dead = philo->prog->dead_flag;
-	pthread_mutex_unlock(&philo->prog->dead_lock);
-	return (dead);
-}
-
-// 3. A safe print function that checks the dead_flag and uses the write_lock.
-void	print_msg(char *str, t_philo *philo)
-{
-	if (check_dead(philo))
-		return ;
-	pthread_mutex_lock(&philo->prog->write_lock);
-	// Double check the dead flag inside the lock to be absolutely sure
-	if (!philo->prog->dead_flag)
-		printf("%zu %d %s\n", get_curr_time(), philo->id, str);
-	pthread_mutex_unlock(&philo->prog->write_lock);
-}
-
-// 4. THE COMPLETED ROUTINE
 void	*philo_routine(void *arg)
 {
 	t_philo	*philo;
@@ -207,22 +118,7 @@ int	simulation(t_program *prog)
 	return (0);
 }
 
-void	cleanup(t_program *prog)
-{
-	int i;
 
-	i = 0;
-	while (i < prog->num_of_philos)
-	{
-		pthread_mutex_destroy(&prog->forks[i]);
-		pthread_mutex_destroy(&prog->philos[i].meal_lock);
-		i++;
-	}
-	pthread_mutex_destroy(&prog->dead_lock);
-	pthread_mutex_destroy(&prog->write_lock);
-	free(prog->philos);
-	free(prog->forks);
-}
 
 int	philosopher(char *argv[], int argc)
 {
@@ -246,16 +142,5 @@ int	philosopher(char *argv[], int argc)
 	}
 	
 	cleanup(&prog);
-	return (0);
-}
-
-int main(int argc, char *argv[])
-{
-	if (argc < 5 || argc > 6)
-		return (1);
-	if (!check_input(argv + 1, argc))
-		return (1);
-	if (philosopher(argv, argc) != 0)
-		return (1);
 	return (0);
 }
