@@ -7,6 +7,8 @@
 #include <sys/time.h>
 #include <pthread.h>
 
+typedef struct s_program t_prog;
+
 typedef struct s_philo
 {
 	int				id;
@@ -36,7 +38,6 @@ typedef struct s_program
 } t_prog;
 
 int	valid_input(char **argv, int argc);
-int	philosopher(int argc, char **argv);
 int	ft_atoi(char *str);
 size_t	get_current_time(void);
 void init_program(t_prog *program, char **argv, int argc);
@@ -45,5 +46,11 @@ void	ft_usleep(size_t milisec);
 int	is_dead(t_philo *philo);
 void	print_msg(char *str, t_philo *philo);
 void	cleanup(t_prog *prog);
+int	take_forks(t_philo *philo);
+void	eating(t_philo *philo);
+void	*routine(void *arg);
+void	monitor(t_prog *prog);
+int	simulation(t_prog *prog);
+void	monitor(t_prog *prog);
 
 #endif

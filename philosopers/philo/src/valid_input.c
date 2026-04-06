@@ -13,7 +13,7 @@ int	ft_atoi(char *str)
 	int	res;
 
 	i = 0;
-	sign = 0;
+	sign = 1;
 	res = 0;
 	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
 		i++;
@@ -46,10 +46,10 @@ int	valid_input(char **argv, int argc)
 			if (!ft_isdigit(argv[i][j]))
 				return (1);
 		if (i != 4 && ft_atoi(argv[i]) <= 0)
-			return (0);
+			return (1);
 		if (i == 4 && ft_atoi(argv[i]) < 0)
-			return (0);
+			return (1);
 		i++;
 	}
-	return (1);
+	return (0);
 }
