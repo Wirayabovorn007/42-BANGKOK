@@ -9,6 +9,7 @@ int	reach_time_to_die(t_prog *prog, int i)
 		pthread_mutex_unlock(&prog->dead_lock);
 		pthread_mutex_lock(&prog->write_lock);
 		printf("%zu %d died\n", get_current_time() - prog->start_time, prog->philos[i].id);
+		pthread_mutex_unlock(&prog->write_lock);
 		pthread_mutex_unlock(&prog->philos[i].meal_lock);
 		return (1);
 	}

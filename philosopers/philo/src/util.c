@@ -27,7 +27,7 @@ void	print_msg(char *str, t_philo *philo)
 	if (is_dead(philo))
 		return ;
 	pthread_mutex_lock(&philo->prog->write_lock);
-	if (!philo->prog->dead_flag)
+	if (!is_dead(philo))
 	{
 		time = get_current_time() - philo->prog->start_time;
 		printf("%zu %d %s\n", time, philo->id, str);
