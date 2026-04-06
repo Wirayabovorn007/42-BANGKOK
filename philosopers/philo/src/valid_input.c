@@ -1,19 +1,20 @@
-#include "philo.h"
+
+#include "../include/philo.h"
 
 int	ft_isdigit(int c)
 {
 	return (c >= '0' && c <= '9');
 }
 
-int	ft_atoi(const char *str)
+int	ft_atoi(char *str)
 {
 	int	i;
-	int	res;
 	int	sign;
+	int	res;
 
 	i = 0;
+	sign = 0;
 	res = 0;
-	sign = 1;
 	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
 		i++;
 	if (str[i] == '+' || str[i] == '-')
@@ -30,27 +31,21 @@ int	ft_atoi(const char *str)
 	return (res * sign);
 }
 
-int	is_num(char *s)
+int	valid_input(char **argv, int argc)
 {
 	int	i;
+	int	j;
 
-	i = -1;
-	while (s[++i])
-		if (!(s[i] >= '0' && s[i] <= '9'))
-			return (0);
-	return (1);
-}
-
-int	check_input(char *argv[], int argc)
-{
-	int	i;
-
+	if (argc > 6 || argc < 5)
+		return (1);
 	i = 0;
 	while (i < argc - 1)
 	{
-		if (!is_num(argv[i]))
-			return (0);
-		if (ft_atoi(argv[i]) <= 0 && i != 4)
+		j = -1;
+		while (argv[i][++j])
+			if (!ft_isdigit(argv[i][j]))
+				return (1);
+		if (i != 4 && ft_atoi(argv[i]) <= 0)
 			return (0);
 		if (i == 4 && ft_atoi(argv[i]) < 0)
 			return (0);

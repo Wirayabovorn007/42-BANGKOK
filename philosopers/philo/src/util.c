@@ -1,30 +1,16 @@
-#include "philo.h"
-
-size_t	get_curr_time(void)
-{
-	struct	timeval	time;
-
-	if (gettimeofday(&time, NULL) == -1)
-		printf("Error getting time\n");
-	return ((time.tv_sec * 1000) + (time.tv_usec / 1000)); // Fixed tv_usec typo
-}
+#include "../include/philo.h"
 
 
-
-
-
-// 1. A better sleep function. Standard usleep is inaccurate and can cause accidental deaths.
-void	ft_usleep(size_t milliseconds)
+void	ft_usleep(size_t milisec)
 {
 	size_t	start;
 
-	start = get_curr_time();
-	while ((get_curr_time() - start) < milliseconds)
+	start = get_current_time();
+	while ((get_current_time() - start) < milisec)
 		usleep(500);
 }
 
-// 2. A safe way for the philosopher to check if someone died before taking an action.
-int	check_dead(t_philo *philo)
+int	is_dead(t_philo *philo)
 {
 	int	dead;
 
@@ -34,34 +20,30 @@ int	check_dead(t_philo *philo)
 	return (dead);
 }
 
-// 3. A safe print function that checks the dead_flag and uses the write_lock.
 void	print_msg(char *str, t_philo *philo)
 {
-	size_t	time; // Variable to hold the relative time
+	size_t	time;
 
-	if (check_dead(philo))
+	if (is_dead(philo))
 		return ;
 	pthread_mutex_lock(&philo->prog->write_lock);
 	if (!philo->prog->dead_flag)
 	{
-		// Calculate relative time: Current Time - Start Time
-		time = get_curr_time() - philo->prog->start_time;
-		printf("%zu %d %s\n", time, philo->id, str); // Print the calculated time
+		time = get_current_time() - philo->prog->start_time;
+		printf("%zu %d %s\n", time, philo->id, str);
 	}
 	pthread_mutex_unlock(&philo->prog->write_lock);
 }
 
-
-void	cleanup(t_program *prog)
+void	cleanup(t_prog *prog)
 {
-	int i;
+	int	i;
 
-	i = 0;
-	while (i < prog->num_of_philos)
+	i = -1;
+	while (++i < prog->num_of_philos)
 	{
 		pthread_mutex_destroy(&prog->forks[i]);
 		pthread_mutex_destroy(&prog->philos[i].meal_lock);
-		i++;
 	}
 	pthread_mutex_destroy(&prog->dead_lock);
 	pthread_mutex_destroy(&prog->write_lock);
