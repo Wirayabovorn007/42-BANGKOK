@@ -1,9 +1,13 @@
+
+
+#include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
+
 
 int is_balanced(char *s)
 {
-	int count = 0;
-	int i = -1;
+	int count = 0,  i=-1;
 
 	while (s[++i])
 	{
@@ -14,30 +18,56 @@ int is_balanced(char *s)
 	return count == 0;
 }
 
+
 void solve(char *s, int idx, int left, int right)
 {
+	if (left == 0 && right == 0)
+	{
+		if (is_balanced(s))
+		{
+			puts(s);
+			return ;
+		}
+	}
+	int i = idx;
+	while (s[i])
+	{
+		if (i > idx  && (s[i] == s[i - 1])) {
+			i++;
+			continue;
+		}
 
+		if (left > 0 && s[i] == '(')
+		{
+			s[i] = ' ';
+			solve(s, i + 1, left - 1, right);
+			s[i] = '(';
+		}
+		if (right > 0 && s[i] == ')')
+		{
+			s[i] = ' ';
+			solve(s, i + 1, left, right - 1);
+			s[i] = ')';
+		}
+		i++;
+	}
 }
-
 
 int main(int ac, char **av)
 {
-	if (ac != 2) return (1);
+	if (ac != 2) return 1;
 
-	char *s = av[1];
-	int left=0, right=0;
-
-	int i = -1;
-	while (s[++i])
+	int left =0, right=0, i=-1;
+	while (av[1][++i])
 	{
-		if (s[i] == '(') left++;
-		else if (s[i] == ')')
+		char c = av[1][i];
+		if (c == '(') left++;
+		else if (c == ')')
 		{
 			if (left > 0) left--;
 			else right++;
 		}
 	}
-
-	solve(s, 0 , left, right);
-	return (0);
+	solve(av[1], 0, left, right);
+	return 0;
 }
