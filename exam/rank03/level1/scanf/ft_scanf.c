@@ -34,7 +34,7 @@ int scan_char(FILE *f, va_list ap)
 	if (c == EOF) return -1;
 	char *ptr = va_arg(ap, char *);
 	*ptr = c;
-    return (0);
+    return (1);
 }
 
 int scan_int(FILE *f, va_list ap)
@@ -44,11 +44,9 @@ int scan_int(FILE *f, va_list ap)
 	int res = 0;
 
 	if (c == EOF) return -1;
-	if (c == '-' || c ==' +') {
-		if (c == '-') {
-			sign = -1;
-			c = fgetc(f);
-		}
+	if (c == '-' || c == '+') {
+		if (c == '-') sign = -1;
+		c = fgetc(f);
 	}
 	if (c == EOF || !isdigit(c))
 	{
@@ -76,11 +74,11 @@ int scan_string(FILE *f, va_list ap)
 	while (c != EOF && !isspace(c))
 	{
 		ptr[count++] = c;
-		c = fgetc;
+		c = fgetc(f);
 	}
 	if (c != EOF) ungetc(c, f);
 	ptr[count] = '\0';
-    return (0);
+    return (1);
 }
 
 
@@ -146,3 +144,6 @@ int ft_scanf(const char *format, ...)
 	va_end(ap);
 	return ret;
 }
+
+
+

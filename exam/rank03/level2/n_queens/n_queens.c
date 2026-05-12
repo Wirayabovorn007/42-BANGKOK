@@ -1,28 +1,21 @@
-#include <unistd.h>
+
+
+#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-
-
-int ft_atoi(char *num)
-{
-	int res = 0;
-	
-	int i =0;
-	while (num[i])
-	{
-		res = res * 10 + (num[i] - '0');
-		i++;
-	}
-	return (res);
-}
 
 void ft_putnbr(int n)
 {
-	char c;
+	if (n < 0)
+	{
+		write(1, "-", 1);
+		n = -n;
+	}
 
 	if (n < 10)
 	{
-		c = n + '0';
+		char c = n + '0';
 		write(1, &c, 1);
 	}else
 	{
@@ -31,37 +24,37 @@ void ft_putnbr(int n)
 	}
 }
 
-void print_sol(int *pos, int n)
+void print_sol(int *n, int len)
 {
-	int i=-1;
-	
-	while (++i < n)
+	int i = -1;
+
+	while (++i < len)
 	{
-		ft_putnbr(pos[i]);
-		if (i < n - 1) write(1, " ", 1);
+		ft_putnbr(n[i]);
+		if (i < len - 1) write(1, " ", 1);
 	}
 	write(1, "\n", 1);
 }
 
 int ft_abs(int x)
 {
-	if (x < 0) x = -x;
-	return x;
+	return (x * (x > 0)) - (x * (x <0));
 }
 
-int	is_safe(int *pos, int col, int row)
+int is_safe(int *pos, int row, int col)
 {
-	int i =0;
+	int i = 0;
+
 	while (i < col)
 	{
-		if (pos[i] == row) return (0);
+		if (pos[i] == row) return 0;
 		if (ft_abs(pos[i] - row) == col - i) return 0;
 		i++;
 	}
 	return 1;
 }
 
-void	solve(int *pos, int n, int col)
+void solve(int *pos, int col, int n)
 {
 	if (col == n)
 	{
@@ -71,23 +64,27 @@ void	solve(int *pos, int n, int col)
 	int row = 0;
 	while (row < n)
 	{
-		if (is_safe(pos, col, row))
+		if (is_safe(pos, row, col))
 		{
 			pos[col] = row;
-			solve(pos, n, col + 1);
+			solve(pos, col + 1, n);
 		}
 		row++;
 	}
 }
 
-int main(int argc, char **argv)
-{
-	if (argc != 2 || !argv[1]) return 1;
 
-	int n = ft_atoi(argv[1]);
-	int *pos = malloc(sizeof(int) * n);
+int main(int ac, char **av)
+{
+	if (ac != 2) return 1;
+
+	int n = atoi(av[1]);
+	int *pos = calloc(n, sizeof(int));
 	if (!pos) return 1;
 
-	solve(pos, n, 0);
+	solve(pos, 0, n);
 	free(pos);
+	return 0;
 }
+
+

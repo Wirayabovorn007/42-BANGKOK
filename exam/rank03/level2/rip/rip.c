@@ -1,53 +1,51 @@
 
-
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
-
-int is_balanced(char *s)
+int is_balanced(char *str)
 {
-	int count = 0,  i=-1;
-
-	while (s[++i])
+	int count = 0;
+	
+	int i = -1;
+	while (str[++i])
 	{
-		if (s[i] == '(') count++;
-		else if (s[i] == ')') count--;
+		if (str[i] == '(') count++;
+		else if (str[i] == ')') count--;
+
 		if (count < 0) return 0;
 	}
-	return count == 0;
+	return count==0;
 }
 
-
-void solve(char *s, int idx, int left, int right)
+void solve(char *str, int index, int left, int right)
 {
 	if (left == 0 && right == 0)
 	{
-		if (is_balanced(s))
+		if (is_balanced(str))
 		{
-			puts(s);
+			puts(str);
 			return ;
 		}
 	}
-	int i = idx;
-	while (s[i])
+	int i = index;
+	while (str[i])
 	{
-		if (i > idx  && (s[i] == s[i - 1])) {
+		if (i > index && str[i] == str[i - 1]) {
 			i++;
 			continue;
 		}
 
-		if (left > 0 && s[i] == '(')
+		if (left > 0 && str[i] == '(')
 		{
-			s[i] = ' ';
-			solve(s, i + 1, left - 1, right);
-			s[i] = '(';
+			str[i] = ' ';
+			solve(str, index + 1, left - 1, right);
+			str[i] = '(';
 		}
-		if (right > 0 && s[i] == ')')
+		if (right > 0 && str[i] == ')')
 		{
-			s[i] = ' ';
-			solve(s, i + 1, left, right - 1);
-			s[i] = ')';
+			str[i] = ' ';
+			solve(str, index + 1, left, right - 1);
+			str[i] = ')';
 		}
 		i++;
 	}
@@ -55,10 +53,11 @@ void solve(char *s, int idx, int left, int right)
 
 int main(int ac, char **av)
 {
-	if (ac != 2) return 1;
+	if (ac != 2 || !av[1]) return 1;
+	int left=0, right=0;
 
-	int left =0, right=0, i=-1;
-	while (av[1][++i])
+	int i = 0;
+	while (av[1][i])
 	{
 		char c = av[1][i];
 		if (c == '(') left++;
@@ -67,6 +66,7 @@ int main(int ac, char **av)
 			if (left > 0) left--;
 			else right++;
 		}
+		i++;
 	}
 	solve(av[1], 0, left, right);
 	return 0;

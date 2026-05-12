@@ -1,59 +1,105 @@
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
-float dist(float x1, float y1, float x2, float y2)
+typedef struct s_city
 {
-	return sqrtf((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	float x;
+	float y;
+}	t_city;
+
+/*
+** Calculates the Euclidean distance between 2 cities
+*/
+float	distance(t_city a, t_city b)
+{
+	float dx = a.x - b.x;
+	float dy = a.y - b.y;
+	return sqrtf(dx * dx + dy * dy);
 }
 
-void solve_tsp(int n, float x[], float y[], int curr, int count, int mask, float current_dist, float *min_dist)
+/*
+** Computes total distance of the path
+** including the return to the starting city
+*/
+float	total_distance(t_city *cities, int *path, int n)
 {
-	if (current_dist >= *min_dist) return;
-
-	if (count == n)
+	float total = 0.0f;
+	
+	for (int i = 0; i < n - 1; i++)
 	{
-		float total_dist = current_dist + dist(x[curr], y[curr], x[0], y[0]);
-		if (total_dist <  *min_dist) *min_dist = total_dist;
-		return ;
+		total += distance(cities[path[i]], cities[path[i + 1]]);
 	}
+	// Add the distance to return to the starting city
+	total += distance(cities[path[n - 1]], cities[path[0]]);
+	
+	return total;
+}
 
-	int i = 0;
-	while (i < n)
+/*
+** Uses backtracking to try all permutations
+*/
+void	solve(t_city *cities, int *path, int n, int pos, float *min)
+{
+	// Base case: we have a complete permutation
+	if (pos == n)
 	{
-		if (!(mask & (1 << i))) {
-			solve_tsp(n, x, y, i, count + 1, mask | (1 << i), current_dist + dist(x[curr], y[curr], x[i], y[i]), min_dist);
+		float current_dist = total_distance(cities, path, n);
+		if (current_dist < *min)
+		{
+			*min = current_dist;
 		}
-		i++;
+		return;
 	}
-}
 
-int main(void)
-{
-	float x[15];
-	float y[15];
-	int n = 0;
-	float curr_x, curr_y;
-
-	while (fscanf(stdin, "%f, %f", &curr_x, &curr_y) == 2)
+	// Recursive step: generate permutations
+	for (int i = pos; i < n; i++)
 	{
-		x[n] = curr_x;
-		y[n] = curr_y;
-		n++;
-	}
+		// Swap the current element with the element at 'pos'
+		int temp = path[pos];
+		path[pos] = path[i];
+		path[i] = temp;
 
-	if (n == 0) return 0;
-	if (n == 1) {
-		fprintf(stdout, "0.00\n");
-		return 0;
+		// Recurse for the next position
+		solve(cities, path, n, pos + 1, min);
+
+		// Backtrack: swap back to restore the array state
+		temp = path[pos];
+		path[pos] = path[i];
+		path[i] = temp;
 	}
-	float min_dist = 1e9f;
-	solve_tsp(n, x, y, 0, 1,1, 0.0f, &min_dist);
-	fprintf(stdout, "%.2f\n", min_dist);
-	return 0;
 }
 
+int	main(void)
+{
+	t_city	cities[11];
+	int		n = 0;
 
+	// Read input from stdin
+	while (n < 11 && fscanf(stdin, "%f, %f", &cities[n].x, &cities[n].y) == 2)
+		n++;
+
+	// If less than 2 cities → distance = 0
+	if (n < 2)
+	{
+		printf("0.00\n");
+		return (0);
+	}
+
+	// Initialize path: [0,1,2,...]
+	int path[11];
+	for (int i = 0; i < n; i++)
+		path[i] = i;
+
+	float min = FLT_MAX;
+
+	/*
+	** Optimization:
+	** Fix first city → start from pos = 1
+	*/
+	solve(cities, path, n, 1, &min);
+
+	printf("%.2f\n", min);
+	return (0);
+}
