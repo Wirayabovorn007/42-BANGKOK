@@ -1,4 +1,4 @@
-# 42 Projects
+# 42 BANGKOK Projects
 
 *This repository contains the projects I have completed as part of the 42 School curriculum.*
 
